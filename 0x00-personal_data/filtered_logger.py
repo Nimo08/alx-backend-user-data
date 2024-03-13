@@ -23,17 +23,16 @@ class RedactingFormatter(logging.Formatter):
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
     SEPARATOR = ";"
 
-    def __init__(self, fields):
+    def __init__(self, fields: List[str]):
         """Constructor method"""
         super(RedactingFormatter, self).__init__(self.FORMAT)
         self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
         """Filter values in incoming log records using filter_datum"""
-        message = super(RedactingFormatter, self).format(record)
-        redacted_msg = filter_datum(self.fields, self.REDACTION,
-                                    message, self.SEPARATOR)
-        return redacted_msg
+        record.msg = filter_datum(self.fields, self.REDACTION,
+                                  record.getMessage(), self.SEPARATOR)
+        return super().format(record)
 
 
 def filter_datum(fields: List[str], redaction: str, message: str,
