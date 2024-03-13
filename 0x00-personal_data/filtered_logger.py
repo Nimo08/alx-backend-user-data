@@ -11,6 +11,7 @@ import logging
 import re
 import os
 import mysql.connector
+from typing import List
 
 PII_FIELDS = ('email', 'phone', 'ssn', 'password', 'ip')
 
@@ -34,14 +35,15 @@ class RedactingFormatter(logging.Formatter):
         return super().format(record)
 
 
-def filter_datum(fields, redaction, message, separator):
+def filter_datum(fields: List[str], redaction: str, message: str,
+                 separator: str) -> str:
     """Returns the log message obfuscated"""
     pattern = r'(' + '|'.join(map(re.escape, fields)) + r')=' +\
         r'[^' + re.escape(separator) + r']+'
     return re.sub(pattern, r'\1=' + redaction, message)
 
 
-def get_logger():
+def get_logger() -> logging.Logger:
     """Returns a logging.Logger object."""
     logger = logging.getLogger("user_data")
     logger.setLevel(logging.INFO)
@@ -54,7 +56,7 @@ def get_logger():
     return logger
 
 
-def get_db():
+def get_db() -> mysql.connector.connection.MySQLConnection:
     """Returns a connector to the database"""
     db_username = os.getenv('PERSONAL_DATA_DB_USERNAME') or "root"
     db_name = os.getenv('PERSONAL_DATA_DB_NAME')
