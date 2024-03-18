@@ -9,14 +9,13 @@ from flask_cors import (CORS, cross_origin)
 import os
 from api.v1.auth.auth import Auth
 from api.v1.auth.basic_auth import BasicAuth
-from typing_extensions import Literal
 
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
-auth = None
 
+auth = None
 auth_type = getenv("AUTH_TYPE")
 if auth_type == "auth":
     auth = Auth()
