@@ -17,9 +17,10 @@ CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 auth = None
 
 auth_type = getenv("AUTH_TYPE")
-if auth_type:
-    if auth_type == "basic_auth":
-        auth = BasicAuth()
+if auth_type == "auth":
+    auth = Auth()
+if auth_type == "basic_auth":
+    auth = BasicAuth()
 
 
 @app.errorhandler(404)
@@ -28,22 +29,26 @@ def not_found(error) -> str:
     """
     return jsonify({"error": "Not found"}), 404
 
+
 @app.errorhandler(401)
 def unauthorized(error) -> str:
     """ Error handler: Unauthorized"""
     return jsonify({"error": "Unauthorized"}), 401
+
 
 @app.errorhandler(403)
 def forbidden(error) -> str:
     """Error handler: Forbidden"""
     return jsonify({"error": "Forbidden"}), 403
 
+
 @app.before_request
 def before_request():
     """Filtering of each request"""
     if auth is None:
         return
-    excluded_paths = ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
+    excluded_paths = ['/api/v1/status/', '/api/v1/unauthorized/',
+                      '/api/v1/forbidden/']
     if request.path not in excluded_paths:
         if not auth.require_auth(request.path, excluded_paths):
             return
