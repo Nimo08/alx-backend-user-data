@@ -18,5 +18,5 @@ class BasicAuth(Auth):
             return None
         if not authorization_header.startswith("Basic "):
             return None
-        encoded_data = authorization_header.split(" ")[1]
-        return encoded_data.strip()
+        encoded_data = authorization_header.split(" ")[-1]
+        return encoded_data
