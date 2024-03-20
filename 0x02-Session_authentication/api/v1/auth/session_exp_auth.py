@@ -9,7 +9,6 @@ class SessionExpAuth(SessionAuth):
     """Inherits from SessionAuth"""
     def __init__(self):
         """Overload init method"""
-        super().__init__()
         try:
             self.session_duration = int(os.getenv("SESSION_DURATION", 0))
         except ValueError:
@@ -24,7 +23,7 @@ class SessionExpAuth(SessionAuth):
             'user_id': user_id,
             'created_at': datetime.now()
         }
-        return str(session_id)
+        return session_id
 
     def user_id_for_session_id(self, session_id=None):
         """Overload user_id_for_session_id"""
