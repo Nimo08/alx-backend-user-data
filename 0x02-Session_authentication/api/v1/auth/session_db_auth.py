@@ -3,6 +3,7 @@
 
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
+from datetime import datetime, timedelta
 
 
 class SessionDBAuth(SessionExpAuth):
@@ -13,12 +14,11 @@ class SessionDBAuth(SessionExpAuth):
         returns the Session ID
         """
         session_id = super().create_session(user_id)
-        if session_id is None:
-            return None
-        data = {
-            "user_id": user_id,
-            "session_id": session_id
-        }
+        if isinstance(session_id, str):
+            data = {
+                "user_id": user_id,
+                "session_id": session_id
+            }
         user = UserSession(**data)
         user.save()
         return session_id
@@ -28,10 +28,18 @@ class SessionDBAuth(SessionExpAuth):
         Returns the User ID by requesting UserSession in the database
         based on session_id
         """
-        user_id = UserSession.search({"session_id": session_id})
-        if user_id:
-            return user_id
-        return None
+        try:
+            user_sessions = UserSession.search({"session_id": session_id})
+        except Exception:
+            return None
+        if len(user_sessions) <= 0:
+            return None
+        current_time = datetime.now()
+        time_len = timedelta(seconds=self.session_duration)
+        exp_time = user_sessions[0].created_at + time_len
+        if exp_time < current_time:
+            return None
+        return user_sessions[0].user_id
 
     def destroy_session(self, request=None):
         """
@@ -41,10 +49,11 @@ class SessionDBAuth(SessionExpAuth):
         if request is None:
             return False
         session_id = self.session_cookie(request)
-        if not session_id:
+        try:
+            user_sessions = UserSession.search({"session_id": session_id})
+        except Exception:
             return False
-        user_sessions = UserSession.search({"session_id": session_id})
-        if user_sessions:
-            user_sessions[0].remove()
-            return True
-        return False
+        if len(user_sessions) <= 0:
+            return False
+        user_sessions[0].remove()
+        return True
