@@ -46,8 +46,6 @@ class SessionDBAuth(SessionExpAuth):
         Destroys the UserSession based on the Session ID
         from the request cookie
         """
-        if request is None:
-            return False
         session_id = self.session_cookie(request)
         try:
             user_sessions = UserSession.search({"session_id": session_id})
