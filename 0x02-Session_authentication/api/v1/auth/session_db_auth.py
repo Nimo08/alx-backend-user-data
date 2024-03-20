@@ -14,7 +14,7 @@ class SessionDBAuth(SessionExpAuth):
         returns the Session ID
         """
         session_id = super().create_session(user_id)
-        if isinstance(session_id, str):
+        if type(session_id) == str:
             data = {
                 "user_id": user_id,
                 "session_id": session_id
