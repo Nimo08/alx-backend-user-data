@@ -48,14 +48,14 @@ class DB:
         Returns the first row found in the users table
         as filtered by the method’s input arguments
         """
+        query = self._session.query(User)
+        for key, value in kwargs.items():
+            if hasattr(User, key):
+                query = query.filter(getattr(User, key) == value)
+            else:
+                raise InvalidRequestError("Invalid")
         try:
-            query = self._session.query(User)
-            for key, value in kwargs.items():
-                if hasattr(User, key):
-                    query = query.filter(getattr(User, key) == value)
-                else:
-                    raise InvalidRequestError("Invalid")
-            return query.first()
+            return query.one()
         except NoResultFound:
             raise NoResultFound("Not found")
         except InvalidRequestError:
