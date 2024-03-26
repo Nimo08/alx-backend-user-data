@@ -1,0 +1,1 @@
+This directory contains scripts for the tasks in 0x03-user_authentication_service.
