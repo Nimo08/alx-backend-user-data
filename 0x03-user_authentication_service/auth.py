@@ -5,6 +5,7 @@ Hash password
 import bcrypt
 from db import DB
 from user import User
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class Auth:
@@ -21,9 +22,12 @@ class Auth:
         Take mandatory email and password string arguments
         and return a User object
         """
-        existing_user = self._db.find_user_by(email=email)
-        if existing_user:
-            raise ValueError(f"User {email} already exists")
+        try:
+            existing_user = self._db.find_user_by(email=email)
+            if existing_user:
+                raise ValueError(f"User {email} already exists")
+        except NoResultFound:
+            pass
         hashed_pwd = _hash_password(password)
         user_obj = self._db.add_user(email, hashed_pwd)
         return user_obj
