@@ -55,7 +55,7 @@ class DB:
                     query = query.filter(getattr(User, key) == value)
                 else:
                     raise InvalidRequestError("Invalid")
-            return query.one()
+            return query.first()
         except NoResultFound:
             raise NoResultFound("Not found")
         except InvalidRequestError:
