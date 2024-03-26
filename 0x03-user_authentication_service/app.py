@@ -37,7 +37,7 @@ def login():
     try:
         email = request.form["email"]
         password = request.form["password"]
-        session_id = AUTH.create_session(email, password)
+        session_id = AUTH.create_session(email)
         user = AUTH._db.find_user_by(email=email)
         payload = {"email": user.email, "message": "logged in"}
         response = make_response(jsonify(payload))
