@@ -43,19 +43,23 @@ class DB:
         self._session.commit()
         return new_user
 
-    def find_user_by(self, **kwargs: Dict[str, str]) -> Optional[User]:
+    def find_user_by(self, **kwargs: Dict[str, str]) -> User:
         """
         Returns the first row found in the users table
         as filtered by the method’s input arguments
         """
-        users = self._session.query(User)
+        query = self._session.query(User)
         for key, value in kwargs.items():
-            if key not in User.__dict__:
+            if hasattr(User, key):
+                query = query.filter(getattr(User, key) == value)
+            else:
                 raise InvalidRequestError
-            for first_user in users:
-                if getattr(first_user, key) == value:
-                    return first_user
-        raise NoResultFound
+        try:
+            return query.one()
+        except NoResultFound:
+            raise NoResultFound
+        except InvalidRequestError:
+            raise InvalidRequestError
 
     def update_user(self, user_id: int, **kwargs: Dict[str, str]) -> None:
         """
