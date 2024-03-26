@@ -9,7 +9,6 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
 from user import Base, User
-from typing import Dict, Optional
 
 
 class DB:
@@ -43,25 +42,21 @@ class DB:
         self._session.commit()
         return new_user
 
-    def find_user_by(self, **kwargs: Dict[str, str]) -> User:
+    def find_user_by(self, **kwargs) -> User:
         """
         Returns the first row found in the users table
         as filtered by the method’s input arguments
         """
-        query = self._session.query(User)
+        users = self._session.query(User)
         for key, value in kwargs.items():
-            if hasattr(User, key):
-                query = query.filter(getattr(User, key) == value)
-            else:
+            if key not in User.__dict__:
                 raise InvalidRequestError
-        try:
-            return query.one()
-        except NoResultFound:
-            raise NoResultFound
-        except InvalidRequestError:
-            raise InvalidRequestError
+            for first_user in users:
+                if getattr(first_user, key) == value:
+                    return first_user
+        raise NoResultFound
 
-    def update_user(self, user_id: int, **kwargs: Dict[str, str]) -> None:
+    def update_user(self, user_id: int, **kwargs) -> None:
         """
         Use find_user_by to locate the user to update
         then will update the user’s attributes
