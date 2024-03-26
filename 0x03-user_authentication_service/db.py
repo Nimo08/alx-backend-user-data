@@ -48,18 +48,14 @@ class DB:
         Returns the first row found in the users table
         as filtered by the method’s input arguments
         """
-        query = self._session.query(User)
+        users = self._session.query(User)
         for key, value in kwargs.items():
-            if hasattr(User, key):
-                query = query.filter(getattr(User, key) == value)
-            else:
-                raise InvalidRequestError("Invalid")
-        try:
-            return query.one()
-        except NoResultFound:
-            raise NoResultFound("Not found")
-        except InvalidRequestError:
-            raise InvalidRequestError("Invalid")
+            if key not in User.__dict__:
+                raise InvalidRequestError
+            for first_user in users:
+                if getattr(first_user, key) == value:
+                    return first_user
+        raise NoResultFound
 
     def update_user(self, user_id: int, **kwargs: Dict[str, str]) -> None:
         """
